@@ -1,4 +1,5 @@
 🏗️ Architecture
+
 The application follows a standard Client-Server model:
 
 The Tkinter app captures user input and sends JSON payloads.
