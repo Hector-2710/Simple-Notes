@@ -13,6 +13,10 @@ class EmailAlreadyExists(AppBaseError):
     def __init__(self, email: str):
         super().__init__(status_code=409, detail=f"User with email {email} already exists")
 
+class UserNotExists(AppBaseError):
+    def __init__(self, user_id: int):
+        super().__init__(status_code=404, detail=f"User with id {user_id} does not exist")
+
 def register_exception_handlers(app):
     @app.exception_handler(AppBaseError)
     async def app_base_error_handler(request: Request, exc: AppBaseError):
