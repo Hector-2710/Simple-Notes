@@ -1,9 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 class UserCreate(BaseModel):
     email: EmailStr
-    username: str
+    username: str = Field(min_length=3, max_length=20)
 
 class UserResponse(BaseModel):
-    email: str
-    created : bool
+    email: EmailStr
+    created : bool 
