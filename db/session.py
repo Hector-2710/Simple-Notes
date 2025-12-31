@@ -3,8 +3,7 @@ from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 from core.settings import settings
 
-postgres_url = settings.POSTGRES_URL
-engine = create_engine(postgres_url)
+engine = create_engine(settings.POSTGRES_URL,echo=True)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
