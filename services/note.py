@@ -19,3 +19,14 @@ def create_note_for_user_service(user_id: int, note: NoteCreate, db_session: Ses
     except Exception as e:
         db_session.rollback()
         raise DatabaseError()
+    
+def get_notes_for_user_service(user_id: int, db_session: Session) -> list[NoteResponse]:
+    user = db_session.get(User, user_id)
+    
+    if not user:
+        raise UserNotExists(user_id)
+    
+    return [
+        NoteResponse(id=note.id, title=note.title, content=note.content, created=True) 
+        for note in user.notes
+    ]
