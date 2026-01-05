@@ -8,7 +8,8 @@ class User_Has_Note(SQLModel, table=True):
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str 
-    email: str = Field(unique=True, index=True)     
+    email: str = Field(unique=True, index=True)   
+    password: str = Field(min_length=6, max_length=100)  
     notes: List["Note"] = Relationship(back_populates="users", link_model=User_Has_Note)
 
 class Note(SQLModel, table=True):
