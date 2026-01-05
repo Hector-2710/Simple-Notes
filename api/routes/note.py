@@ -1,8 +1,7 @@
 from fastapi import APIRouter
 from schemas.note import NoteCreate, NoteResponse
 from db.session import SessionDep
-from services.note import create_note_for_user_service
-from services.note import get_notes_for_user_service
+from services.note import create_note_for_user_service, get_notes_for_user_service
 
 note = APIRouter(prefix="/notes", tags=["notes"])  
 
