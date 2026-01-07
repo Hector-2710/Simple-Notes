@@ -38,6 +38,25 @@ def get_note_for_user_service(user_id: int, title: str, db_session: Session) -> 
     
     for note in user.notes:
         if note.title == title:
-            return NoteResponse(id=note.id, title=note.title, content=note.content, created=True)
+            return NoteResponse(id=note.id, title=note.title, content=note.content)
+    
+    raise NoteNotFound(title)
+
+def delete_note_for_user_service(user_id: int, title: str, db_session: Session):
+    user = db_session.get(User, user_id)
+    
+    if not user:
+        raise UserNotExists(user_id)
+    
+    for note in user.notes:
+        if note.title == title:
+            try:
+                user.notes.remove(note)
+                db_session.delete(note)
+                db_session.commit()
+                return NoteResponse(id=note.id, title=note.title, content=note.content)
+            except Exception as e:
+                db_session.rollback()
+                raise DatabaseError()
     
     raise NoteNotFound(title)
