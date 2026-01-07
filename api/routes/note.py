@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from schemas.note import NoteCreate, NoteResponse
 from db.session import SessionDep
-from services.note import create_note_for_user_service, get_notes_for_user_service, get_note_for_user_service
+from services.note import create_note_for_user_service, get_notes_for_user_service, get_note_for_user_service, delete_note_for_user_service
 
 note = APIRouter(prefix="/notes", tags=["notes"])  
 
@@ -19,3 +19,9 @@ def get_notes_for_user(user_id: int, session: SessionDep) -> list[NoteResponse]:
 def get_note_for_user(user_id: int, title: str, session: SessionDep) -> NoteResponse:
     note = get_note_for_user_service(user_id, title, session)
     return note
+
+@note.delete("/{user_id}/{title}")
+def delete_note_for_user(user_id: int, title: str, session: SessionDep):
+    note = delete_note_for_user_service(user_id, title, session)
+    return note
+  
