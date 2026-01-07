@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from db.session import SessionDep
-from services.user import create_user_service , login_user_service
+from services.user import create_user_service , login_service
 from schemas.user import UserResponse, UserCreate
+from schemas.token import Token
 from exceptions.responses import EmailAlreadyExists, DatabaseError, invalidCredentials
 
 user = APIRouter(prefix="/users", tags=["Users"])
@@ -11,7 +13,6 @@ def create_user(user: UserCreate, db_session : SessionDep) -> UserResponse:
     created_user = create_user_service(user, db_session)
     return created_user
 
-@user.post("/login", description="Login a user",response_description="User logged in successfully", responses={401: {"model": invalidCredentials,"description": "Invalid email or password"}},summary="Login User",status_code=200)
-def login_user(user: UserCreate, db_session : SessionDep) -> UserResponse:
-    logged_user = login_user_service(user, db_session)
-    return logged_user
+@user.post("/login", description="Login a user",response_model=Token,response_description="User logged in successfully", responses={401: {"model": invalidCredentials,"description": "Invalid email or password"}},summary="Login User",status_code=200)
+def login_user(db_session : SessionDep, form_data: OAuth2PasswordRequestForm = Depends()) -> Token:
+    return login_service(form_data, db_session)

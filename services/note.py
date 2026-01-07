@@ -1,12 +1,14 @@
-from sqlmodel import Session
+from sqlmodel import Session, select
 from models.models import Note, User
-from exceptions.excep import UserNotExists, DatabaseError
+from exceptions.excep import UserNotExists, DatabaseError, NoteNotFound
 from schemas.note import NoteCreate, NoteResponse
 
-def create_note_for_user_service(user_id: int, note: NoteCreate, db_session: Session) -> NoteResponse:
-    user = db_session.get(User, user_id)
+def create_note_for_user_service(user_email: str, note: NoteCreate, db_session: Session) -> NoteResponse:
+    # Buscar usuario por email en lugar de por ID
+    statement = select(User).where(User.email == user_email)
+    user = db_session.exec(statement).first()
     if not user:
-        raise UserNotExists(user_id)
+        raise UserNotExists(user_email)
     
     try:
         new_note = Note(title=note.title, content=note.content)
@@ -20,13 +22,49 @@ def create_note_for_user_service(user_id: int, note: NoteCreate, db_session: Ses
         db_session.rollback()
         raise DatabaseError()
     
-def get_notes_for_user_service(user_id: int, db_session: Session) -> list[NoteResponse]:
-    user = db_session.get(User, user_id)
+def get_notes_for_user_service(user_email: str, db_session: Session) -> list[NoteResponse]:
+    # Buscar usuario por email
+    statement = select(User).where(User.email == user_email)
+    user = db_session.exec(statement).first()
     
     if not user:
-        raise UserNotExists(user_id)
+        raise UserNotExists(user_email)
     
     return [
         NoteResponse(id=note.id, title=note.title, content=note.content, created=True) 
         for note in user.notes
     ]
+def get_note_for_user_service(user_email: str, title: str, db_session: Session) -> NoteResponse:
+    # Buscar usuario por email
+    statement = select(User).where(User.email == user_email)
+    user = db_session.exec(statement).first()
+    
+    if not user:
+        raise UserNotExists(user_email)
+    
+    for note in user.notes:
+        if note.title == title:
+            return NoteResponse(id=note.id, title=note.title, content=note.content)
+    
+    raise NoteNotFound(title)
+
+def delete_note_for_user_service(user_email: str, title: str, db_session: Session):
+    # Buscar usuario por email
+    statement = select(User).where(User.email == user_email)
+    user = db_session.exec(statement).first()
+    
+    if not user:
+        raise UserNotExists(user_email)
+    
+    for note in user.notes:
+        if note.title == title:
+            try:
+                user.notes.remove(note)
+                db_session.delete(note)
+                db_session.commit()
+                return NoteResponse(id=note.id, title=note.title, content=note.content)
+            except Exception as e:
+                db_session.rollback()
+                raise DatabaseError()
+    
+    raise NoteNotFound(title)

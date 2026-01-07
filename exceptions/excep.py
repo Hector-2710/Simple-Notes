@@ -14,12 +14,20 @@ class EmailAlreadyExists(AppBaseError):
         super().__init__(status_code=409, detail=f"User with email {email} already exists")
 
 class UserNotExists(AppBaseError):
-    def __init__(self, user_id: int):
-        super().__init__(status_code=404, detail=f"User with id {user_id} does not exist")
+    def __init__(self, email: str):
+        super().__init__(status_code=404, detail=f"User with email {email} does not exist")
 
 class UserInvalidCredentials(AppBaseError):
     def __init__(self):
         super().__init__(status_code=401, detail="Invalid email or password")
+
+class NoteNotFound(AppBaseError):
+    def __init__(self, title: str):
+        super().__init__(status_code=404, detail=f"Note with title '{title}' not found")
+
+class InvalidPassword(AppBaseError):
+    def __init__(self):
+        super().__init__(status_code=400, detail="The provided password is invalid")
 
 def register_exception_handlers(app):
     @app.exception_handler(AppBaseError)
