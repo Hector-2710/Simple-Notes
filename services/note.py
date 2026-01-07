@@ -1,6 +1,6 @@
 from sqlmodel import Session
 from models.models import Note, User
-from exceptions.excep import UserNotExists, DatabaseError
+from exceptions.excep import UserNotExists, DatabaseError, NoteNotFound
 from schemas.note import NoteCreate, NoteResponse
 
 def create_note_for_user_service(user_id: int, note: NoteCreate, db_session: Session) -> NoteResponse:
@@ -30,3 +30,14 @@ def get_notes_for_user_service(user_id: int, db_session: Session) -> list[NoteRe
         NoteResponse(id=note.id, title=note.title, content=note.content, created=True) 
         for note in user.notes
     ]
+def get_note_for_user_service(user_id: int, title: str, db_session: Session) -> NoteResponse:
+    user = db_session.get(User, user_id)
+    
+    if not user:
+        raise UserNotExists(user_id)
+    
+    for note in user.notes:
+        if note.title == title:
+            return NoteResponse(id=note.id, title=note.title, content=note.content, created=True)
+    
+    raise NoteNotFound(title)
