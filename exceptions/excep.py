@@ -21,6 +21,10 @@ class UserInvalidCredentials(AppBaseError):
     def __init__(self):
         super().__init__(status_code=401, detail="Invalid email or password")
 
+class NoteNotFound(AppBaseError):
+    def __init__(self, title: str):
+        super().__init__(status_code=404, detail=f"Note with title '{title}' not found")
+
 def register_exception_handlers(app):
     @app.exception_handler(AppBaseError)
     async def app_base_error_handler(request: Request, exc: AppBaseError):
