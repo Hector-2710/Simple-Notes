@@ -9,7 +9,6 @@ from schemas.token import TokenData
 from models.models import User
 from fastapi.security import OAuth2PasswordBearer
 from exceptions.excep import InvalidToken,UserNotExists
-from services.user import get_user_by_email
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto",bcrypt__ident="2b")
 
@@ -40,6 +39,7 @@ def decode_token(token: str) -> TokenData:
         raise InvalidToken() 
 
 def get_current_user(db_session: SessionDep, token: str = Depends(oauth2_scheme)) -> User:
+    from services.user import get_user_by_email  
     token_data = decode_token(token)
     user = get_user_by_email(token_data.sub, db_session)
     if not user:
