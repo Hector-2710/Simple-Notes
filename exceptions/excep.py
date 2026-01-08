@@ -29,6 +29,10 @@ class InvalidPassword(AppBaseError):
     def __init__(self):
         super().__init__(status_code=400, detail="The provided password is invalid")
 
+class InvalidToken(AppBaseError):
+    def __init__(self):
+        super().__init__(status_code=401, detail="The provided token is invalid or has expired")
+
 def register_exception_handlers(app):
     @app.exception_handler(AppBaseError)
     async def app_base_error_handler(request: Request, exc: AppBaseError):
