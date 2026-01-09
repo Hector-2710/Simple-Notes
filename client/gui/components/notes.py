@@ -24,11 +24,9 @@ class NotesFrame(tk.Frame):
         tk.Button(btn_frame, text="Actualizar", bg="#2196F3", fg="white", 
                  command=self.refresh_notes).pack(side=tk.LEFT, padx=5)
         
-        # Notes container with scrollbar
         self.notes_container = tk.Frame(self)
         self.notes_container.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
-        # Create canvas and scrollbar
         self.canvas = tk.Canvas(self.notes_container)
         self.scrollbar = tk.Scrollbar(self.notes_container, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas)
@@ -56,7 +54,6 @@ class NotesFrame(tk.Frame):
             messagebox.showerror("Error", f"Error de conexión: {str(e)}")
     
     def display_notes(self):
-        # Clear existing notes
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
         
@@ -72,7 +69,6 @@ class NotesFrame(tk.Frame):
         note_frame = tk.Frame(self.scrollable_frame, relief="raised", bd=1, bg="white")
         note_frame.pack(fill="x", pady=5, padx=5)
         
-        # Note header
         header = tk.Frame(note_frame, bg="white")
         header.pack(fill="x", padx=10, pady=5)
         
@@ -84,7 +80,6 @@ class NotesFrame(tk.Frame):
                               font=('Arial', 10, 'bold'), bd=0)
         delete_btn.pack(side=tk.RIGHT)
         
-        # Note content (truncated)
         content = note["content"]
         if len(content) > 100:
             content = content[:100] + "..."
@@ -93,13 +88,10 @@ class NotesFrame(tk.Frame):
                                 justify=tk.LEFT, bg="white", fg="gray")
         content_label.pack(fill="x", padx=10, pady=(0, 10))
         
-        # Click to view full note
         note_frame.bind("<Button-1>", lambda e: self.view_note(note))
         title_label.bind("<Button-1>", lambda e: self.view_note(note))
         content_label.bind("<Button-1>", lambda e: self.view_note(note))
 
-       
-    
     def view_note(self, note):
         # Create a popup window to view the full note
         popup = tk.Toplevel(self)
@@ -119,24 +111,42 @@ class NotesFrame(tk.Frame):
         tk.Button(popup, text="Cerrar", command=popup.destroy).pack(pady=10)
     
     def show_add_note_dialog(self):
-        dialog = tk.Toplevel(self)
-        dialog.title("Nueva Nota")
-        dialog.geometry("500x400")
-        dialog.grab_set()  # Make it modal
+        # Clear the current content and show add note form
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
         
-        # Title
-        tk.Label(dialog, text="Título:").pack(pady=5)
-        title_entry = tk.Entry(dialog, width=50)
-        title_entry.pack(pady=5)
+        # Create form container (centrado con ancho limitado)
+        container = tk.Frame(self.scrollable_frame, bg="#f0f0f0")
+        container.pack(fill="x", pady=10)
         
-        # Content
-        tk.Label(dialog, text="Contenido:").pack(pady=5)
-        content_text = scrolledtext.ScrolledText(dialog, wrap=tk.WORD, width=60, height=15)
-        content_text.pack(fill="both", expand=True, padx=10, pady=10)
+        form_frame = tk.Frame(container, bg="white", relief="raised", bd=1)
+        form_frame.pack(padx=50, pady=5)  # Margins para centrar y limitar ancho
+        
+        # Form header
+        header_frame = tk.Frame(form_frame, bg="white")
+        header_frame.pack(padx=20, pady=10)
+        
+        tk.Label(header_frame, text="Nueva Nota", font=('Arial', 12, 'bold'), bg="white").pack()
+        
+        # Title input
+        title_frame = tk.Frame(form_frame, bg="white")
+        title_frame.pack(padx=20, pady=5)
+        
+        tk.Label(title_frame, text="Título:", font=('Arial', 9), bg="white").pack(anchor="w")
+        title_entry = tk.Entry(title_frame, font=('Arial', 9), width=35)
+        title_entry.pack(pady=(2, 0))
+        
+        # Content input
+        content_frame = tk.Frame(form_frame, bg="white")
+        content_frame.pack(padx=20, pady=5)
+        
+        tk.Label(content_frame, text="Contenido:", font=('Arial', 9), bg="white").pack(anchor="w")
+        content_text = scrolledtext.ScrolledText(content_frame, wrap=tk.WORD, height=4, font=('Arial', 8), width=35)
+        content_text.pack(pady=(2, 0))
         
         # Buttons
-        btn_frame = tk.Frame(dialog)
-        btn_frame.pack(pady=10)
+        btn_frame = tk.Frame(form_frame, bg="white")
+        btn_frame.pack(padx=20, pady=10)
         
         def save_note():
             title = title_entry.get().strip()
@@ -150,17 +160,23 @@ class NotesFrame(tk.Frame):
                 response = save_note_api(self.token, title, content)
                 if response.status_code in [200, 201]:
                     messagebox.showinfo("Éxito", "Nota guardada exitosamente")
-                    dialog.destroy()
-                    self.refresh_notes()
+                    self.refresh_notes()  # Return to notes list
                 else:
                     messagebox.showerror("Error", "No se pudo guardar la nota")
             except Exception as e:
                 messagebox.showerror("Error", f"Error de conexión: {str(e)}")
         
+        def cancel_add_note():
+            self.display_notes()  # Return to notes list
+        
+        # Botones más pequeños y compactos
         tk.Button(btn_frame, text="Guardar", bg="#4CAF50", fg="white", 
-                 command=save_note).pack(side=tk.LEFT, padx=5)
+                 command=save_note, font=('Arial', 8), width=10, height=1).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Cancelar", bg="#f44336", fg="white", 
-                 command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+                 command=cancel_add_note, font=('Arial', 8), width=10, height=1).pack(side=tk.LEFT, padx=5)
+        
+        # Focus on title entry
+        title_entry.focus_set()
     
     def delete_note(self, title):
         if messagebox.askyesno("Confirmar", f"¿Estás seguro de que quieres eliminar la nota '{title}'?"):
