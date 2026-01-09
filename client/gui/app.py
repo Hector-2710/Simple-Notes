@@ -1,11 +1,13 @@
 import tkinter as tk
-from .components import AuthFrame
+from .components.auth import AuthFrame
+from .components.notes import NotesFrame
 
 class SimpleNotesApp(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.title("Simple Notes")
         self.user_token = None
-        self.geometry("400x500")
+        self.geometry("600x700")
         self.container = tk.Frame(self)
         self.container.pack(expand=True, fill="both")
         
@@ -13,23 +15,18 @@ class SimpleNotesApp(tk.Tk):
 
     def show_auth(self):
         self._clear_screen()
-        # 2. Le pasamos al hijo la función 'self.login_success' como un "callback"
         auth = AuthFrame(self.container, on_success=self.login_success)
         auth.pack()
 
-    # 3. ESTA es la función que modifica el token
     def login_success(self, data):
-        # 'data' es lo que devolvió la API (el JSON con el token e ID)
         self.user_token = data.get("access_token")
-        self.user_id = data.get("id")
-        
-        print(f"Token guardado en App: {self.user_token}") # Debug
-        self.show_notes() # Cambiamos de pantalla
+        print("Token almacenado en la app:", self.user_token)
+        self.show_notes() 
 
     def show_notes(self):
         self._clear_screen()
-        tk.Label(self.container, text="¡Estás dentro!").pack()
-        # Aquí crearías el frame de notas pasándole el token si lo necesita
+        notes_frame = NotesFrame(self.container, self.user_token)
+        notes_frame.pack(fill="both", expand=True)
 
     def _clear_screen(self):
         for widget in self.container.winfo_children():
