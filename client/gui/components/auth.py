@@ -19,13 +19,9 @@ class AuthFrame(tk.Frame):
         self.form_container.pack(fill="both", expand=True)
         self.show_login_form()
 
-    def clear_form(self):
-        for widget in self.form_container.winfo_children():
-            widget.destroy()
-
     def show_login_form(self):
         self.clear_form()
-        tk.Label(self.form_container, text="Iniciar Sesión", font=('Arial', 14, 'bold')).pack(pady=10)
+        tk.Label(self.form_container, text="Iniciar Sesión", font=('arial', 14, 'bold')).pack(pady=10)
         
         tk.Label(self.form_container, text="Email:").pack()
         self.entry_email = tk.Entry(self.form_container, width=30)
@@ -58,6 +54,7 @@ class AuthFrame(tk.Frame):
     def _handle_login(self):
         res = login_user_api(self.entry_email.get(), self.entry_pass.get())
         if res.status_code == 200:
+            messagebox.showinfo("Éxito", "Login exitoso")
             self.on_success(res.json())
         else:
             messagebox.showerror("Error de Login", res.text)
@@ -70,3 +67,7 @@ class AuthFrame(tk.Frame):
             self.on_success(res.json())
         else:
             messagebox.showerror("Error de registro", res.text)
+    
+    def clear_form(self):
+        for widget in self.form_container.winfo_children():
+            widget.destroy()
