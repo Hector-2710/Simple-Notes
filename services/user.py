@@ -32,7 +32,6 @@ def login_service(form_data: OAuth2PasswordRequestForm, db_session: Session) -> 
 
     access_token = create_access_token({"sub": user.email})
     return Token(access_token=access_token, token_type="bearer")
-
     
 def get_user_by_email(email: str, db_session: Session) -> User | None:
     statement = select(User).where(User.email == email)

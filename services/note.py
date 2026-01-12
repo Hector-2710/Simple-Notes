@@ -4,7 +4,6 @@ from exceptions.excep import UserNotExists, DatabaseError, NoteNotFound
 from schemas.note import NoteCreate, NoteResponse
 
 def create_note_for_user_service(user_email: str, note: NoteCreate, db_session: Session) -> NoteResponse:
-    # Buscar usuario por email en lugar de por ID
     statement = select(User).where(User.email == user_email)
     user = db_session.exec(statement).first()
     if not user:
@@ -23,7 +22,6 @@ def create_note_for_user_service(user_email: str, note: NoteCreate, db_session: 
         raise DatabaseError()
     
 def get_notes_for_user_service(user_email: str, db_session: Session) -> list[NoteResponse]:
-    # Buscar usuario por email
     statement = select(User).where(User.email == user_email)
     user = db_session.exec(statement).first()
     
@@ -34,8 +32,8 @@ def get_notes_for_user_service(user_email: str, db_session: Session) -> list[Not
         NoteResponse(id=note.id, title=note.title, content=note.content, created=True) 
         for note in user.notes
     ]
+
 def get_note_for_user_service(user_email: str, title: str, db_session: Session) -> NoteResponse:
-    # Buscar usuario por email
     statement = select(User).where(User.email == user_email)
     user = db_session.exec(statement).first()
     
@@ -49,7 +47,6 @@ def get_note_for_user_service(user_email: str, title: str, db_session: Session) 
     raise NoteNotFound(title)
 
 def delete_note_for_user_service(user_email: str, title: str, db_session: Session):
-    # Buscar usuario por email
     statement = select(User).where(User.email == user_email)
     user = db_session.exec(statement).first()
     
